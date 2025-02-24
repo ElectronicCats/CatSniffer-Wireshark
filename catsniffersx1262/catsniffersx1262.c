@@ -145,7 +145,7 @@
      {&hf_catsniffer_rpi_version, {"Version", "catsniffersx1262.version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
      {&hf_catsniffer_rpi_length, {"Packet Length", "catsniffersx1262.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
      {&hf_catsniffer_rpi_interface_id, {"Interface ID", "catsniffersx1262.interface_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-     {&hf_catsniffer_rpi_protocol, {"Protocol", "catsniffersx1262.protocol", FT_UINT8, BASE_DEC, VALS(table_protocol), 0x0, NULL, HFILL}},
+     {&hf_catsniffer_rpi_protocol, {"Modulation", "catsniffersx1262.protocol", FT_UINT8, BASE_DEC, VALS(table_protocol), 0x0, NULL, HFILL}},
      {&hf_catsniffer_rpi_phy, {"PHY", "catsniffersx1262.phy", FT_UINT8, BASE_DEC, VALS(table_phy), 0x0, NULL, HFILL}},
      {&hf_catsniffer_rpi_freq, {"Frequency", "catsniffersx1262.freq", FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&table_units_mhz), 0x0, NULL, HFILL}},
      {&hf_catsniffer_rpi_bandwidth, {"Bandwidth", "catsniffersx1262.bandwidth", FT_UINT8, BASE_DEC, VALS(table_bandwidth), 0x0, NULL, HFILL}},
@@ -175,5 +175,5 @@
  
  void proto_reg_handoff_catsniffer_rpi(void)
  {
-     dissector_add_uint("wtap_encap", WTAP_ENCAP_USER0, handle_catsniffer_rpi);
+     dissector_add_uint("wtap_encap", WTAP_ENCAP_USER1, handle_catsniffer_rpi);
  }

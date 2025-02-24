@@ -1,8 +1,11 @@
 name: Build
 on: 
   push:
-    branches:
-      - "dev"
+    tags:
+      - "v*"
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
 
 jobs:
   build:
@@ -33,54 +36,8 @@ jobs:
     - name: Checkout CatSniffer Plugin
       uses: actions/checkout@v4
       with:
-        path: wireshark/plugins/epan/catsniffer
+        path: wireshark/plugins/epan/cats
         fetch-depth: 0
-    
-    - name: Keep the folder catsniffer (Unix)
-      if: matrix.sys.os != 'windows'
-      run: |
-        cd wireshark/plugins/epan/catsniffer
-        git sparse-checkout init --cone
-        git sparse-checkout set catsniffer
-        git checkout
-        mv catsniffer/* .
-        rm -r catsniffer
-    
-    - name: Keep the folder catsniffer (Windows)
-      if: matrix.sys.os == 'windows'
-      run: |
-        cd wireshark/plugins/epan/catsniffer
-        git sparse-checkout init --cone
-        git sparse-checkout set catsniffer
-        git checkout
-        robocopy catsniffer . /E /MOVE
-        rmdir /S /Q catsniffer
-    
-    - name: Checkout CatSniffer SX1262 Plugin
-      uses: actions/checkout@v4
-      with:
-        path: wireshark/plugins/epan/catsniffersx1262
-        fetch-depth: 0
-    
-    - name: Keep the folder catsniffersx1262 (Unix)
-      if: matrix.sys.os != 'windows'
-      run: |
-        cd wireshark/plugins/epan/catsniffersx1262
-        git sparse-checkout init --cone
-        git sparse-checkout set catsniffersx1262
-        git checkout
-        mv catsniffersx1262/* .
-        rm -r catsniffersx1262
-      
-    - name: Keep the folder catsniffersx1262 (Windows)
-      if: matrix.sys.os == 'windows'
-      run: |
-        cd wireshark/plugins/epan/catsniffersx1262
-        git sparse-checkout init --cone
-        git sparse-checkout set catsniffersx1262
-        git checkout
-        robocopy catsniffersx1262 . /E /MOVE
-        rmdir /S /Q catsniffersx1262
 
     - name: Install dependencies (Ubuntu)
       if: matrix.sys.os == 'ubuntu'
@@ -105,7 +62,7 @@ jobs:
       run: wireshark/tools/msys2-setup.sh --install-all --noconfirm
 
     - name: Configure
-      run: cmake -B build -S wireshark -G Ninja -DCUSTOM_PLUGIN_SRC_DIR=plugins/epan/catsniffer;plugins/epan/catsniffersx1262 -DCMAKE_INSTALL_PREFIX=/
+      run: cmake -B build -S wireshark -G Ninja -DCUSTOM_PLUGIN_SRC_DIR=plugins/epan/cats -DCMAKE_INSTALL_PREFIX=/
 
     - name: Build
       run: |
@@ -116,11 +73,11 @@ jobs:
       env:
         DESTDIR: ${{ github.workspace }}/dist
       run: |
-        cmake --build build --target plugins/epan/catsniffer/install
-        cmake --build build --target plugins/epan/catsniffersx1262/install
+        cmake --build build --target plugins/epan/cats/catsniffer/install
+        cmake --build build --target plugins/epan/cats/catsniffersx1262/install
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ matrix.wireshark }}_${{ matrix.sys.os }}
+        name: CatSniffer_Wireshark${{ matrix.wireshark }}_${{ matrix.sys.os }}
         path: dist/
