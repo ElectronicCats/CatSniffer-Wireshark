@@ -17,6 +17,12 @@ cd wireshark
 git checkout v4.4.0
 ```
 
+Make sure you have installed all the needed dependencies to build wireshark. You may do that manually (see Wireshark build instructions) or use the setup scripts available inside the Wireshark `tools` folder.
+For example for Debian/Ubuntu run:
+```bash
+tools/debian-setup.sh
+```
+
 Then, you need to clone this repository onto the epan plugins folder inside wireshark:
 ```bash
 cd plugins/epan/
@@ -34,9 +40,9 @@ You may now build the plugin target alone witout having to compile the full Wire
 cmake --build build --target catsniffer
 ```
 
-> If you have an error install the dependencies, a inside the wireshark `tools` folder there are a setups scripts for differents environments.
 
 # Build and test on development
+
 If you need to build and test the the dissectors you can add this to the `CmakeLists.txt`
 ``` bash
 IF ( NOT CMAKE_INSTALL_LIBDIR )
