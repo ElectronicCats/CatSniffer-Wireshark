@@ -38,6 +38,7 @@ cmake -B build -S . -DCUSTOM_PLUGIN_SRC_DIR=plugins/epan/catsniffer
 You may now build the plugin target alone witout having to compile the full Wireshark source code:
 ```bash
 cmake --build build --target catsniffer
+cmake --build build --target catsniffersx1262
 ```
 
 
