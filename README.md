@@ -38,25 +38,18 @@ cmake -B build -S . -DCUSTOM_PLUGIN_SRC_DIR=plugins/epan/catsniffer
 You may now build the plugin target alone witout having to compile the full Wireshark source code:
 ```bash
 cmake --build build --target catsniffer
+cmake --build build --target catsniffersx1262
 ```
 
 
-# Build and test on development
+## Running and testing
 
-If you need to build and test the the dissectors you can add this to the `CmakeLists.txt`
-``` bash
-IF ( NOT CMAKE_INSTALL_LIBDIR )
-  set(CMAKE_INSTALL_LIBDIR ~/.local/lib/wireshark/plugins/4-4/epan/)
-ENDIF ( NOT CMAKE_INSTALL_LIBDIR )
-MESSAGE (STATUS "Plugin will be installed in: ${CMAKE_INSTALL_LIBDIR}")
-
-install(TARGETS catsnifferlora
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/ NAMELINK_SKIP
-)
+To test the in-tree build you can perform a full Wireshark build and run the resulting executable:
+```bash
+cmake --build build
+build/run/wireshark
 ```
-Changing `CMAKE_INSTALL_LIBDIR` to the path of your wireshark personal plugins path.
-Then once you build using the `cmake --build build --target catsniffer` in the root path of wireshark there will be a folder `build` inside of the folder `build/plugins/epan/catsniffer/` you need to do a `make install`. This will compile and install the plugin in the wireshark folder, then you can attach.
 
 
-# Speciall thanks for contribution:
+## Speciall thanks for contribution:
   - Antonio Vázquez Blanco 
