@@ -1,6 +1,7 @@
 # CMakeLists.txt
 #
 # SPDX-FileCopyrightText: © 2025 Kevin Leon
+# SPDX-FileCopyrightText: © 2025 Antonio Vázquez Blanco <antoniovazquezblanco@gmail.com>
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 include(WiresharkPlugin)
@@ -45,3 +46,6 @@ CHECKAPI(
 			${DISSECTOR_SRC}
 			${DISSECTOR_HEADERS}
 )
+
+# This is a subtarget of the virtual catsniffer target
+add_dependencies(catsniffer catsniffersx1262)
