@@ -1,15 +1,15 @@
 # CMakeLists.txt
 #
-# SPDX-FileCopyrightText: © 2024 Antonio Vázquez Blanco <antoniovazquezblanco@gmail.com>
+# SPDX-FileCopyrightText: © 2024-2025 Antonio Vázquez Blanco <antoniovazquezblanco@gmail.com>
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 include(WiresharkPlugin)
 
 # Plugin name and version info (major minor micro extra)
-set_module_info(catsniffer 0 0 1 0)
+set_module_info(catsniffer_rpi 0 0 1 0)
 
 set(DISSECTOR_SRC
-	catsniffer.c
+	catsniffer_rpi.c
 )
 
 set(PLUGIN_FILES
@@ -28,16 +28,16 @@ register_plugin_files(plugin.c
 	${DISSECTOR_SRC}
 )
 
-add_wireshark_plugin_library(catsniffer epan)
+add_wireshark_plugin_library(catsniffer_rpi epan)
 
-target_link_libraries(catsniffer epan)
+target_link_libraries(catsniffer_rpi epan)
 
-install_plugin(catsniffer epan)
+install_plugin(catsniffer_rpi epan)
 
 file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
 CHECKAPI(
 	NAME
-    catsniffer
+    catsniffer_rpi
 	SWITCHES
 	  --group dissectors-prohibited
 	  --group dissectors-restricted
@@ -45,3 +45,6 @@ CHECKAPI(
 	  ${DISSECTOR_SRC}
 	  ${DISSECTOR_HEADERS}
 )
+
+# This is a subtarget of the virtual catsniffer target
+add_dependencies(catsniffer catsniffer_rpi)
