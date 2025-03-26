@@ -11,6 +11,6 @@ project(CatSnifferPlugins)
 # Create a virtual target that groups all CatSniffer targets
 add_custom_target(catsniffer ALL)
 
-# Add all the targets
 add_subdirectory(catsniffer_rpi)
+add_subdirectory(catsniffer_blepi)
 add_subdirectory(catsniffersx1262)
