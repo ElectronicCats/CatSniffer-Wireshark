@@ -1,11 +1,6 @@
 name: Build
 on: 
-  push:
-    tags:
-      - "v*"
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -73,3 +68,9 @@ jobs:
         DESTDIR: ${{ github.workspace }}/dist
       run: |
         cmake --build build --target plugins/epan/catsniffer/install
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: CatSniffer_Wireshark${{ matrix.wireshark }}_${{ matrix.sys.os }}
+        path: dist/
