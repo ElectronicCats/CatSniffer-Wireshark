@@ -1,0 +1,121 @@
+name: Build
+on:
+  push:
+    tags:
+      - "v*"
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        sys:
+          - { os: windows, shell: "msys2 {0}" }
+          - { os: ubuntu, shell: bash }
+          - { os: macos, shell: bash }
+        wireshark:
+          - v4.6.0
+
+    runs-on: ${{ matrix.sys.os }}-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: ${{ matrix.sys.shell }}
+
+    steps:
+      - name: Checkout Wireshark
+        uses: actions/checkout@v4
+        with:
+          repository: wireshark/wireshark
+          ref: ${{ matrix.wireshark }}
+          path: wireshark
+          fetch-depth: 0
+
+      - name: Checkout CatSniffer Plugin
+        uses: actions/checkout@v4
+        with:
+          path: wireshark/plugins/epan/catsniffer
+          fetch-depth: 0
+
+      - name: Install dependencies (Ubuntu)
+        if: matrix.sys.os == 'ubuntu'
+        run: sudo wireshark/tools/debian-setup.sh --install-all python3-pip -y
+
+      - name: Install dependencies (Mac OS)
+        if: matrix.sys.os == 'macos'
+        run: wireshark/tools/macos-setup-brew.sh --install-optional --install-doc-deps --install-dmg-deps --install-test-deps
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
+
+      - name: Install MSYS2 (Windows)
+        if: matrix.sys.os == 'windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: base-devel
+
+      - name: Install dependencies (Windows)
+        if: matrix.sys.os == 'windows'
+        run: wireshark/tools/msys2-setup.sh --install-all --noconfirm
+
+      - name: Configure
+        run: cmake -B build -S wireshark -G Ninja -DCUSTOM_PLUGIN_SRC_DIR=plugins/epan/catsniffer -DCMAKE_INSTALL_PREFIX=/
+
+      - name: Build
+        run: |
+          cmake --build build --target catsniffer
+
+      - name: Install
+        env:
+          DESTDIR: ${{ github.workspace }}/dist
+        run: |
+          cmake --build build --target plugins/epan/catsniffer/install
+
+      - name: Create ZIP archive (Windows)
+        if: matrix.sys.os == 'windows'
+        run: tar -czf CatSniffer_Wireshark_${{ matrix.wireshark }}_${{ matrix.sys.os }}.tar.gz -C dist .
+
+      - name: Create ZIP archive (Linux/macOS)
+        if: matrix.sys.os != 'windows'
+        run: |
+          zip -r CatSniffer_Wireshark_${{ matrix.wireshark }}_${{ matrix.sys.os }}.zip dist/
+        shell: bash
+
+      - name: Upload ZIP artifact (Windows)
+        if: matrix.sys.os == 'windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: CatSniffer_Wireshark_${{ matrix.wireshark }}_${{ matrix.sys.os }}.tar.gz
+          path: ./CatSniffer_Wireshark_${{ matrix.wireshark }}_${{ matrix.sys.os }}.tar.gz
+
+      - name: Upload ZIP artifact (Linux/Macos)
+        if: matrix.sys.os != 'windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: CatSniffer_Wireshark_${{ matrix.wireshark }}_${{ matrix.sys.os }}.zip
+          path: ./CatSniffer_Wireshark_${{ matrix.wireshark }}_${{ matrix.sys.os }}.zip
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all ZIP artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./release_zips/
+
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: ./release_zips/*/*
+          generateReleaseNotes: true
+          draft: true
