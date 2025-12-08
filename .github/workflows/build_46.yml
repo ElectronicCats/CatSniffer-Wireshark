@@ -1,4 +1,4 @@
-name: Build
+name: Build 4.6
 on:
   push:
     tags:
@@ -47,7 +47,10 @@ jobs:
 
       - name: Install dependencies (Mac OS)
         if: matrix.sys.os == 'macos'
-        run: wireshark/tools/macos-setup-brew.sh --install-optional --install-doc-deps --install-dmg-deps --install-test-deps
+        run: |
+          brew install qt@6
+          brew install speexdsp
+          wireshark/tools/macos-setup-brew.sh --install-optional --install-doc-deps --install-dmg-deps --install-test-deps --install-all
         env:
           HOMEBREW_NO_AUTO_UPDATE: 1
 

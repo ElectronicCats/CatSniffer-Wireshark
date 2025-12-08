@@ -134,7 +134,7 @@
    proto_tree *payload_tree = proto_item_add_subtree(ti_payload, ett_packet);
    
    proto_tree_add_item(payload_tree, hf_catsniffer_rpi_payload, tvb, offset, payload_len,  ENC_ASCII | ENC_UTF_8);
-   proto_tree_add_string(payload_tree, hf_catsniffer_rpi_payload_ascii, tvb, offset, payload_len, tvb_get_string_enc(wmem_packet_scope(), tvb, offset, payload_len, ENC_ASCII));
+   proto_tree_add_string(payload_tree, hf_catsniffer_rpi_payload_ascii, tvb, offset, payload_len, tvb_get_string_enc(pinfo->pool, tvb, offset, payload_len, ENC_ASCII));
  
    return offset;
  }
