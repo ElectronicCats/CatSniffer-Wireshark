@@ -1,5 +1,5 @@
-name: Build  4.4
-on: 
+name: Build
+on:
   push:
     tags:
       - "v*"
@@ -17,7 +17,8 @@ jobs:
           - { os: ubuntu,  shell: bash  }
           - { os: macos,   shell: bash  }
         wireshark:
-          - v4.4.0
+          - 4.4.13
+          - 4.6.3
 
     runs-on: ${{ matrix.sys.os }}-latest
     permissions:
@@ -27,11 +28,11 @@ jobs:
         shell: ${{ matrix.sys.shell }}
 
     steps:
-    - name: Checkout Wireshark
+    - name: Checkout Wireshark ${{ matrix.wireshark }}
       uses: actions/checkout@v4
       with:
         repository: wireshark/wireshark
-        ref: ${{ matrix.wireshark }}
+        ref: v${{ matrix.wireshark }}
         path: wireshark
         fetch-depth: 0
 
@@ -47,7 +48,13 @@ jobs:
 
     - name: Install dependencies (Mac OS)
       if: matrix.sys.os == 'macos'
-      run: wireshark/tools/macos-setup-brew.sh --install-optional --install-doc-deps --install-dmg-deps --install-test-deps
+      run: |
+        version_greater_equal() { printf '%s\n%s\n' "$2" "$1" | sort --check=quiet --version-sort; }
+        SETUP_OPTIONS="--install-optional --install-doc-deps --install-dmg-deps --install-test-deps"
+        if version_greater_equal ${{ matrix.wireshark }} 4.6; then
+          SETUP_OPTIONS="${SETUP_OPTIONS} --install-required"
+        fi
+        wireshark/tools/macos-setup-brew.sh ${SETUP_OPTIONS}
       env:
         HOMEBREW_NO_AUTO_UPDATE: 1
 
@@ -79,7 +86,7 @@ jobs:
     - name: Create ZIP archive (Windows)
       if: matrix.sys.os == 'windows'
       run: tar -czf CatSniffer_Wireshark_${{ matrix.wireshark }}_${{ matrix.sys.os }}.tar.gz -C dist .
-  
+
     - name: Create ZIP archive (Linux/macOS)
       if: matrix.sys.os != 'windows'
       run: |
@@ -92,7 +99,7 @@ jobs:
       with:
         name: CatSniffer_Wireshark_${{ matrix.wireshark }}_${{ matrix.sys.os }}.tar.gz
         path: ./CatSniffer_Wireshark_${{ matrix.wireshark }}_${{ matrix.sys.os }}.tar.gz
-  
+
     - name: Upload ZIP artifact (Linux/Macos)
       if: matrix.sys.os != 'windows'
       uses: actions/upload-artifact@v4
@@ -107,7 +114,7 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-    
+
     - name: Download all ZIP artifacts
       uses: actions/download-artifact@v4
       with:
