@@ -57,8 +57,12 @@ static const value_string table_protocol[] = {
 
 static const value_string table_phy[] = {
     {0, "Unused"},
-    {3, "O-QPSK"},
+    {1, "Proprietary (2-GFSK/SLR)"},
+    {2, "802.15.4g (2-GFSK/SLR/Wi-SUN)"},
+    {3, "O-QPSK (802.15.4)"},
+    {4, "Wi-SUN FSK"},
     {5, "BLE 1 Mbps"},
+    {6, "WBMS"},
     {0, NULL}};
 
 static const unit_name_string table_units_khz = {"kHz", NULL};
